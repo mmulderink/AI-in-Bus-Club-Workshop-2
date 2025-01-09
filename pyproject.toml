@@ -1,0 +1,28 @@
+[tool.poetry]
+name = "Workshop 2"
+version = "1.0.0"
+description = "For AI in Business Club"
+authors = ["Matthew Mulderink"]
+
+[tool.poetry.dependencies]
+python = ">=3.10.0,<3.12"
+openai = "^1.52.2"
+crewai = "^0.76.2"
+flask = "^3.0.3"
+requests = "^2.32.3"
+fpdf = "^1.7.2"
+beautifulsoup4 = "^4.12.3"
+
+[tool.pyright]
+# https://github.com/microsoft/pyright/blob/main/docs/configuration.md
+useLibraryCodeForTypes = true
+exclude = [".cache"]
+
+[tool.ruff]
+# https://beta.ruff.rs/docs/configuration/
+select = ['E', 'W', 'F', 'I', 'B', 'C4', 'ARG', 'SIM']
+ignore = ['W291', 'W292', 'W293']
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>M2 Flask App</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            width: 60%;
+            background-color: #fff;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: #333;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        textarea, input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 1.5rem;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 1rem;
+        }
+
+        input[type="submit"] {
+            background-color: #007BFF;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+
+        .summary-section {
+            display: block;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            color: #007BFF;
+            margin-bottom: 1rem;
+        }
+
+        .summary-textarea {
+            background-color: #f0f0f5;
+            border: none;
+            width: 100%;
+            height: 300px;
+            padding: 1rem;
+            font-size: 1rem;
+            color: #333;
+            resize: none;
+            border-radius: 5px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                width: 90%;
+            }
+        }
+    </style>
+    <script>
+        function disableSubmitButton() {
+            const submitButton = document.getElementById('submit-button');
+            submitButton.disabled = true;
+            submitButton.value = 'Waiting for Response';
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1><strong>M2 Flask App</strong></h1>
+        <form method="post" onsubmit="disableSubmitButton()">
+            <label for="topic_input"><strong>Enter the topic URL:</strong></label>
+            <textarea name="topic_input" id="topic_input" rows="2">{{ topic_input }}</textarea><br>
+            <input type="submit" id="submit-button" value="Submit">
+        </form>
+
+        <div class="summary-section">
+            <h2><strong>Summary:</strong></h2>
+            <textarea class="summary-textarea" readonly>{{ assistant_reply }}</textarea>
+        </div>
+    </div>
+</body>
+</html>

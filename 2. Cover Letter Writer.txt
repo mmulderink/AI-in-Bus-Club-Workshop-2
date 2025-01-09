@@ -1,0 +1,124 @@
+import os
+import requests
+from bs4 import BeautifulSoup
+import openai
+from fpdf import FPDF
+from openai import OpenAI
+
+my_website_url="https://careers.bankofamerica.com/en-us/students/job-detail/12017/strategy-management-analyst-program-2025-multiple-locations"
+my_resume_path="./resume.txt"
+my_name="Your Name"
+my_contact="your.email@example.com | (123) 456-7890"
+my_output_pdf="cover_letter.pdf"
+
+
+def generate_cover_letter_pdf(website_url, resume_path, name, contact, output_pdf = "cover_letter.pdf", openai_api_key = ""):
+
+    openai.api_key = os.getenv('OPENAI_API_KEY')
+
+    def scrape_website(url):
+        response = requests.get(url)
+        response.raise_for_status()
+        soup = BeautifulSoup(response.text, 'html.parser')
+        # Extract text with line breaks
+        text = soup.get_text(separator='\n')
+        return text
+
+    def read_resume(path):
+        with open(path, 'r', encoding='utf-8') as file:
+            return file.read()
+
+    def generate_cover_letter(website_text, resume_text):
+        client = OpenAI(api_key=os.environ['OPENAI_API_KEY'])
+        prompt = (
+            "Using the information from the following website and resume, write a professional and concise cover letter tailored to the job opportunities presented.\n\n"
+            "Website Information:\n"
+            f"{website_text}\n\n"
+            "Resume Information:\n"
+            f"{resume_text}\n\n")
+
+        completion = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You are a professional assistant that writes cover letters. Do not return the header or footer, I already have those; begin with the words, 'Dear Hiring Manager,' and finish with 'Sincerly,' (I will put my name below it). Also, just return the text as I am putting what is returned directly into a pdf. Also, since what is returned is directly put into the pdf, fill in everything, do not leave anything blank to be filled in later."
+                },
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ],
+            max_tokens=500,
+            temperature=0.7
+        )
+        cover_letter = completion.choices[0].message.content.strip()
+        return cover_letter
+
+    def create_pdf(name, contact, cover_letter, output_path):
+        from fpdf import FPDF
+
+        pdf = FPDF()
+        pdf.add_page()
+
+        # Set font to a built-in one, e.g., Arial
+        pdf.set_font("Arial", 'B', 16)
+        pdf.cell(0, 10, name.encode('latin-1', 'ignore').decode('latin-1'), ln=True)
+        pdf.set_font("Arial", size=12)
+        pdf.cell(0, 10, contact.encode('latin-1', 'ignore').decode('latin-1'), ln=True)
+
+        # Add a line break
+        pdf.ln(10)
+
+        # Add the cover letter content
+        pdf.set_font("Arial", size=11)
+        for line in cover_letter.split('\n'):
+            # Remove or replace unsupported characters
+            line_clean = line.encode('latin-1', 'ignore').decode('latin-1')
+            pdf.multi_cell(0, 6, line_clean)
+
+        pdf.multi_cell(0, 6, name)
+
+        # Save the PDF to the specified path
+        try:
+            pdf.output(output_path)
+            print(f"Cover letter PDF created successfully: {output_path}")
+        except Exception as e:
+            print(f"Error creating PDF: {e}")
+
+
+    # Step 1: Scrape website content
+    print("Scraping website content...")
+    website_text = scrape_website(website_url)
+    if not website_text:
+        print("Failed to retrieve website content. Exiting.")
+        return
+
+    # Step 2: Read resume content
+    print("Reading resume...")
+    resume_text = read_resume(resume_path)
+    if not resume_text:
+        print("Failed to read resume. Exiting.")
+        return
+
+    # Step 3: Generate cover letter
+    print("Generating cover letter...")
+    cover_letter = generate_cover_letter(website_text, resume_text)
+    if not cover_letter:
+        print("Failed to generate cover letter. Exiting.")
+        return
+
+    # Step 4: Create PDF
+    print("Creating PDF...")
+    create_pdf(name, contact, cover_letter, output_pdf)
+
+
+# Example usage:
+if __name__ == "__main__":
+    generate_cover_letter_pdf(
+        website_url=my_website_url,
+        resume_path=my_resume_path,
+        name=my_name,
+        contact=my_contact,
+        output_pdf=my_output_pdf
+    )
